@@ -23,6 +23,11 @@ RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 HINT_TEXT = (50, 50, 150)
 FEN_TEXT = (30, 30, 100)
+SETTING_BG = (240, 240, 245)
+SETTING_BORDER = (100, 100, 200)
+SETTING_HIGHLIGHT = (180, 180, 255)
+SETTING_TEXT = (30, 30, 100)
+SETTING_LABEL = (60, 60, 150)
 
 class ChessGame:
     def __init__(self):
@@ -61,10 +66,17 @@ class ChessGame:
         self.hidden_fen = None        # 当前轮次使用的隐藏FEN
         self.next_game_time = 0       # 下一局开始时间
         self.next_round_time = 0      # 下一轮开始时间
-        self.max_rounds = 50          # 最大轮次限制
+        self.max_rounds = 50          # 最大轮次限制（默认值，用户可设置）
+        self.engine_move_time = 1000  # 引擎思考时间（默认值，用户可设置）
         self.finished = False         # 标记是否已完成所有轮次
         self.exit_time = None         # 退出时间（即使为0也等一秒）
         self.current_round_invalid = False  # 标记当前轮次是否无效
+        
+        # 引擎配置（用户可设置）
+        self.engine1_hash = 512       # 引擎1的Hash大小（默认值）
+        self.engine1_threads = 16     # 引擎1的线程数（默认值）
+        self.engine2_hash = 512       # 引擎2的Hash大小（默认值）
+        self.engine2_threads = 16     # 引擎2的线程数（默认值）
         
         # 添加结果统计
         self.results = []             # 存储每局结果
@@ -73,18 +85,141 @@ class ChessGame:
         
         # 初始化字体
         self.init_fonts()
-        
-        # 初始化棋盘状态
-        self.reset_game(new_round=True)
-        
         # 创建窗口
         self.create_window()
-        
+        # 显示设置窗口
+        self.show_setting_window()
         # 加载图片
         self.load_images()
-        
         # 初始化引擎
-        self.init_engines()  # 初始化两个引擎
+        self.init_engines()
+    
+    def show_setting_window(self):
+        """显示设置窗口，让用户配置比赛参数"""
+        # 创建设置窗口表面
+        setting_surface = pygame.Surface((500, 450))
+        setting_surface.fill(SETTING_BG)
+        
+        # 绘制标题
+        title_font = pygame.font.SysFont(FONT_NAME, 36)
+        title = title_font.render("引擎对战设置", True, SETTING_TEXT)
+        setting_surface.blit(title, (150, 20))
+        
+        # 初始化输入框值
+        inputs = {
+            "max_rounds": str(self.max_rounds),
+            "engine_move_time": str(self.engine_move_time),
+            "engine1_hash": str(self.engine1_hash),
+            "engine1_threads": str(self.engine1_threads),
+            "engine2_hash": str(self.engine2_hash),
+            "engine2_threads": str(self.engine2_threads)
+        }
+        
+        # 输入框位置和标签
+        input_fields = [
+            {"label": "最大比赛回合数", "key": "max_rounds", "y": 80},
+            {"label": "比赛时间限制(ms)", "key": "engine_move_time", "y": 130},
+            {"label": "Engine1 Hash大小", "key": "engine1_hash", "y": 180},
+            {"label": "Engine1 线程数", "key": "engine1_threads", "y": 230},
+            {"label": "Engine2 Hash大小", "key": "engine2_hash", "y": 280},
+            {"label": "Engine2 线程数", "key": "engine2_threads", "y": 330}
+        ]
+        
+        # 创建输入框矩形
+        input_rects = {}
+        font = pygame.font.SysFont(FONT_NAME, 24)
+        for field in input_fields:
+            label = font.render(f"{field['label']}:", True, SETTING_LABEL)
+            setting_surface.blit(label, (50, field['y']))
+            
+            rect = pygame.Rect(250, field['y'], 200, 30)
+            input_rects[field["key"]] = rect
+        
+        # 创建开始按钮
+        start_button = pygame.Rect(200, 380, 100, 40)
+        
+        # 当前激活的输入框
+        active_input = None
+        input_text = inputs.copy()
+        
+        # 设置窗口主循环
+        running = True
+        while running:
+            # 计算窗口位置居中
+            win_rect = setting_surface.get_rect(center=(self.screen.get_width()//2, self.screen.get_height()//2))
+            
+            # 绘制到主屏幕
+            self.screen.fill((50, 50, 50))
+            self.screen.blit(setting_surface, win_rect)
+            
+            # 绘制输入框
+            for key, rect in input_rects.items():
+                color = SETTING_HIGHLIGHT if active_input == key else SETTING_BORDER
+                pygame.draw.rect(self.screen, color, pygame.Rect(win_rect.left + rect.x, win_rect.top + rect.y, rect.width, rect.height), 2)
+                
+                # 绘制文本
+                text_surface = font.render(input_text[key], True, SETTING_TEXT)
+                self.screen.blit(text_surface, (win_rect.left + rect.x + 5, win_rect.top + rect.y + 5))
+                
+                # 绘制标签
+                for field in input_fields:
+                    if field["key"] == key:
+                        label = font.render(f"{field['label']}:", True, SETTING_LABEL)
+                        self.screen.blit(label, (win_rect.left + 50, win_rect.top + field['y']))
+            
+            # 绘制开始按钮
+            pygame.draw.rect(self.screen, (50, 150, 50), pygame.Rect(win_rect.left + start_button.x, win_rect.top + start_button.y, start_button.width*1.2, start_button.height))
+            start_text = font.render("开始比赛", True, (255, 255, 255))
+            self.screen.blit(start_text, (win_rect.left + start_button.x + 10, win_rect.top + start_button.y + 10))
+            
+            pygame.display.flip()
+            
+            # 处理事件
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # 检查是否点击了输入框
+                    mouse_pos = pygame.mouse.get_pos()
+                    active_input = None
+                    
+                    for key, rect in input_rects.items():
+                        adjusted_rect = pygame.Rect(win_rect.left + rect.x, win_rect.top + rect.y, rect.width, rect.height)
+                        if adjusted_rect.collidepoint(mouse_pos):
+                            active_input = key
+                    
+                    # 检查是否点击了开始按钮
+                    adjusted_button = pygame.Rect(win_rect.left + start_button.x, win_rect.top + start_button.y, start_button.width, start_button.height)
+                    if adjusted_button.collidepoint(mouse_pos):
+                        # 保存设置
+                        try:
+                            self.max_rounds = int(input_text["max_rounds"])
+                            self.engine_move_time = int(input_text["engine_move_time"])
+                            self.engine1_hash = int(input_text["engine1_hash"])
+                            self.engine1_threads = int(input_text["engine1_threads"])
+                            self.engine2_hash = int(input_text["engine2_hash"])
+                            self.engine2_threads = int(input_text["engine2_threads"])
+                            running = False
+                        except ValueError:
+                            # 输入无效，显示错误信息
+                            error_font = pygame.font.SysFont(FONT_NAME, 24)
+                            error_text = error_font.render("请输入有效的数字！", True, (255, 0, 0))
+                            self.screen.blit(error_text, (win_rect.left + 150, win_rect.top + 430))
+                            pygame.display.flip()
+                            pygame.time.delay(1000)
+                
+                if event.type == pygame.KEYDOWN:
+                    if active_input:
+                        if event.key == pygame.K_RETURN:
+                            active_input = None
+                        elif event.key == pygame.K_BACKSPACE:
+                            input_text[active_input] = input_text[active_input][:-1]
+                        else:
+                            # 只允许输入数字
+                            if event.unicode.isdigit():
+                                input_text[active_input] += event.unicode
     
     def init_engines(self):
         """初始化两个UCI引擎"""
@@ -101,8 +236,8 @@ class ChessGame:
             
             # 发送初始化命令
             self.send_engine_command(self.engine1, "uci")
-            self.send_engine_command(self.engine1, "setoption name Threads value 16")
-            self.send_engine_command(self.engine1, "setoption name Hash value 512")
+            self.send_engine_command(self.engine1, f"setoption name Threads value {self.engine1_threads}")
+            self.send_engine_command(self.engine1, f"setoption name Hash value {self.engine1_hash}")
             self.send_engine_command(self.engine1, "isready")
             
             # 等待引擎准备好
@@ -129,8 +264,8 @@ class ChessGame:
             
             # 发送初始化命令
             self.send_engine_command(self.engine2, "uci")
-            self.send_engine_command(self.engine2, "setoption name Threads value 16")
-            self.send_engine_command(self.engine2, "setoption name Hash value 512")
+            self.send_engine_command(self.engine2, f"setoption name Threads value {self.engine2_threads}")
+            self.send_engine_command(self.engine2, f"setoption name Hash value {self.engine2_hash}")
             self.send_engine_command(self.engine2, "isready")
             
             # 等待引擎准备好
@@ -143,6 +278,9 @@ class ChessGame:
         except Exception as e:
             print(f"Error initializing engine2: {e}")
             self.engine2 = None
+        
+        # 初始化棋盘状态
+        self.reset_game(new_round=True)
     
     def send_engine_command(self, engine, command):
         """向指定引擎发送命令"""
@@ -226,12 +364,12 @@ class ChessGame:
         self.send_engine_command(engine, position_cmd)
     
         # 发送go命令
-        self.send_engine_command(engine, "go movetime 1000")  # 2秒思考时间
+        self.send_engine_command(engine, f"go movetime {self.engine_move_time}")  # 使用用户设置的思考时间
     
         # 读取引擎输出
         bestmove = None
         start_time = time.time()
-        timeout = 15  # 最多等待5秒
+        timeout = 15  # 最多等待15秒
         evaluation_received = False  # 标记是否收到评估信息
     
         while time.time() - start_time < timeout:
@@ -435,7 +573,7 @@ class ChessGame:
         init_width = int(init_height * BOARD_SIZE[0] / BOARD_SIZE[1])
         
         self.screen = pygame.display.set_mode((init_width, init_height), pygame.RESIZABLE)
-        pygame.display.set_caption("中国象棋揭棋 - 引擎对弈")
+        pygame.display.set_caption("Jieqi Match Tools")
         
         # 计算缩放因子
         self.scale_factor = min(init_width / BOARD_SIZE[0], init_height / BOARD_SIZE[1])
@@ -880,7 +1018,7 @@ class ChessGame:
         
         # 绘制隐藏FEN
         if self.hidden_fen:
-            hidden_text = f"隐藏FEN: {self.hidden_fen[:40]}..."  # 只显示部分
+            hidden_text = f"隐藏FEN: {self.hidden_fen[:400]}"
             text = self.small_font.render(hidden_text, True, (100, 0, 100))
             self.screen.blit(text, (10, self.scaled_board_size[1] - 30))
         
@@ -953,6 +1091,53 @@ class ChessGame:
         # 重新创建窗口
         self.screen = pygame.display.set_mode((new_width, new_height), pygame.RESIZABLE)
     
+    def write_results_to_file(self):
+        """将比赛结果写入txt文件"""
+        if not self.final_stats:
+            return
+            
+        filename = "match_results.txt"
+        try:
+            with open(filename, "w", encoding="utf-8") as f:
+                # 写入标题
+                f.write("引擎对战比赛结果\n")
+                f.write("=" * 50 + "\n\n")
+                
+                # 写入比赛设置
+                f.write(f"比赛设置:\n")
+                f.write(f"最大轮次: {self.max_rounds}\n")
+                f.write(f"引擎思考时间: {self.engine_move_time} 毫秒\n")
+                f.write(f"引擎1 Hash大小: {self.engine1_hash}\n")
+                f.write(f"引擎1 线程数: {self.engine1_threads}\n")
+                f.write(f"引擎2 Hash大小: {self.engine2_hash}\n")
+                f.write(f"引擎2 线程数: {self.engine2_threads}\n\n")
+                
+                # 写入最终统计结果
+                stats = self.final_stats
+                f.write(f"最终统计:\n")
+                f.write(f"引擎1 胜: {stats['wins1']}\n")
+                f.write(f"引擎2 胜: {stats['wins2']}\n")
+                f.write(f"和局: {stats['draws']}\n")
+                f.write(f"总计对局: {len(self.results)}\n")
+                f.write(f"引擎1 VS 引擎2: {stats['wins1']}-{stats['wins2']}-{stats['draws']}\n\n")
+                
+                # 写入Elo分析
+                f.write(f"Elo分析:\n")
+                f.write(f"Elo差距: {stats['elo_diff']:.2f}\n")
+                f.write(f"误差: ±{stats['error']:.2f}\n")
+                
+                # 写入每局结果
+                f.write("\n详细对局结果:\n")
+                f.write("=" * 50 + "\n")
+                for i, result in enumerate(self.results, 1):
+                    red_engine, black_engine, outcome = result
+                    outcome_text = "红胜" if outcome == 'W' else "黑胜" if outcome == 'B' else "和局"
+                    f.write(f"对局 {i}: {red_engine}(红) vs {black_engine}(黑) - 结果: {outcome_text}\n")
+                
+            print(f"比赛结果已写入文件: {filename}")
+        except Exception as e:
+            print(f"写入结果文件时出错: {e}")
+    
     def run(self):
         """运行游戏主循环"""
         clock = pygame.time.Clock()
@@ -968,6 +1153,10 @@ class ChessGame:
                 if self.engine2:
                     self.send_engine_command(self.engine2, "quit")
                     self.engine2.terminate()
+                
+                # 写入结果文件
+                self.write_results_to_file()
+                
                 pygame.quit()
                 sys.exit()
             
@@ -1126,9 +1315,7 @@ class ChessGame:
                     self.handle_resize(event)
                 
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:  # 按R键重置游戏（按了没用（大概＞_＜））
-                        self.start_new_round()
-                    elif event.key == pygame.K_f:  # 按F键打印FEN（debug用的）
+                    if event.key == pygame.K_f:  # 按F键打印FEN（debug用的）
                         print("隐藏FEN:", self.generate_hidden_fen())
                         print("表面FEN:", self.generate_surface_fen())
                     elif event.key == pygame.K_ESCAPE:  # 按ESC键退出
